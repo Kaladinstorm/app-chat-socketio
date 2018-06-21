@@ -8,21 +8,6 @@
 
         <!-- Este js viene en el modulo de socket.io, y se debe cargar para hacer la comunicacion -->
         <script src="/socket.io/socket.io.js"></script>
-        <script>
-            //Aca se genera el request con el server, y mantiene la conexion actica
-            //Si el server se cae, sigue reintentando hasta que se vuelve a conectar
-            var socket = io();
-
-            //La siguiente funcion es un evento tipo connect, el cual se emite cuando el socket
-            //se comunica con el server
-            socket.on('connect', () => {
-                console.log('Socket is connected with server');
-            })
-
-            //El siguiente evento se emite cuando se desconecta con el server
-            socket.on('disconnect', () => {
-                console.log('Disconnect from server');
-            });
-        </script>
+        <script src="/js/index.js"></script>
     </body>
 </html>
