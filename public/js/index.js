@@ -17,13 +17,17 @@ socket.on('disconnect', function() {
     console.log('Disconnect from server');
 });
 
+socket.on('welcome', function(msg){
+    console.log(msg);
+});
+
 //Aca se creara un evento personalizado, el cual se registrara el listener
 //Sera ejecutado cuando en el server se genere el emit event
-/** 
+
 socket.on('newEmal', function(email){
     console.log('New Email');
     console.log(email);
-}); */
+});
 
 
 /**
