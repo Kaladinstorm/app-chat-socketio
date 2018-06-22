@@ -9,6 +9,10 @@ socket.on('connect', function() {
 })
 
 socket.on('newMessage', function(message) {
+
+    var li = jQuery('<li></li>');
+    li.text(`- ${message.from}: ${message.text}`);
+    jQuery('#messages').append(li);
     console.log(message);
 });
 
@@ -32,8 +36,22 @@ socket.on('newEmal', function(email){
 
 /**
 //Se generara un emit event, elcual ejecutara el listener personalizado que esta en el server
+ */
 socket.emit('createEmail', {
     from: 'perra@asd.cl',
     text: 'mascalo'
+}, function(res){
+    console.log('mail ok', res);
 });
- */
+
+/** Sobreescribir la funcionalidad del boton */
+jQuery('#message-form').on('submit', function(e) {
+    e.preventDefault();
+
+    socket.emit('createMessage', {
+        from: 'User',
+        text: jQuery('[name=message]').val()
+    }, function(msg){
+        console.log('send it', msg);
+    })
+});

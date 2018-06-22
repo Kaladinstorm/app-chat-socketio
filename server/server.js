@@ -2,7 +2,7 @@ const path = require('path');
 const express = require('express');
 const http = require('http');
 const app = express();
-const generateMessage = require('./utils/message');
+const generateMessage = require('./utils/message').generateMessages;
 //Este modulo permite hacer comunicacion con WebSocket
 const socketIO = require('socket.io');
 //Esta funcion permite generar un path integro, sin los "../", sino que muestra el resultado final
@@ -29,26 +29,32 @@ io.on('connection', (socket) => {
 
     socket.broadcast.emit('welcome', { msg: 'A new user has connected'} );
 
+    socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat!'));
+    socket.broadcast.emit('newMessage', generateMessage('Admin', 'A new user has connected!') );
+
     //Listener que se eecutara cuando el cliente envie el emit
-    socket.on('createMessage', function(message) {
+    socket.on('createMessage', function(message, callback) {
         console.log(message);
 
         
 
         //De esta forma se envia el mensaje como broadcast, le envia el mensaje a todos los sockets
         //Descomentar para probar
-        io.emit('newMessage', generateMessage('juan', 'hola'));
+        io.emit('newMessage', generateMessage(message.from, message.text));
+
 
         //De esta forma se envia el broadcast solo a este socket creado
         //El broadcast es enviado a todos los sockets menos al socket que emitio el mensaje o activo el evento
         //Descomentar para probar
-        socket.broadcast.emit('newMessage', generateMessage('msg', 'new user has joined'))
+        //socket.broadcast.emit('newMessage', generateMessage(message.from, message.text))
+        callback('Ack from server')
     });
 
     //Aca se crea el event emit, que ejecutara el listener creado en el lado del cliente
     //Emit acepta un segundo parametro, el cual puede ser un objeto de cualquir tipo
     //Lo ideal es pasar un objeto json, asi se pueden especificar varias cosas
     //El segundo argunmento sera recibido en el callback del cliente
+    
     socket.emit('newEmal', {
         from: 'juan@gmail.com',
         text: 'chupalo',
@@ -56,8 +62,10 @@ io.on('connection', (socket) => {
     });
 
     //Se crea un listener personalizado que sera emitido por el cliente
-    socket.on('createEmail', function(newEmail) {
+    //Para darle una especie de acknowledgement al evento, se puede crear un callback
+    socket.on('createEmail', function(newEmail, callback) {
         console.log('New Email:', newEmail);
+        callback('Send from server!');
     })
 
     //Aca se crean los eventos correspondientes al socket creado
