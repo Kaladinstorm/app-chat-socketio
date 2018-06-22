@@ -48,10 +48,11 @@ socket.emit('createEmail', {
 jQuery('#message-form').on('submit', function(e) {
     e.preventDefault();
 
+    var textBoxMesage = jQuery('[name=message]');
     socket.emit('createMessage', {
         from: 'User',
-        text: jQuery('[name=message]').val()
+        text: textBoxMesage.val()
     }, function(msg){
-        console.log('send it', msg);
+        textBoxMesage.val('');
     })
 });
