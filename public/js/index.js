@@ -2,6 +2,32 @@
 //Si el server se cae, sigue reintentando hasta que se vuelve a conectar
 var socket = io();
 
+
+/**
+ * La siguiente funcion es para que se realice el auto scroll hacia abajo cuando existan mas
+ * mensajes sobrepasando la pantalla
+ */
+function scrollToBottom() {
+
+    //Selectors
+    //Se obtiene el ol donde estan los mensajes
+    var message = jQuery('#messages');
+    //se obtiene el ulimo mensaje del li
+    var newMessage = message.children('li:last-child');
+
+    //Se obtienen las alturas, los cuales son propiededes que trae el jquery para el html
+    var clientHeight = message.prop('clientHeight');
+    var scrollTop = message.prop('scrollTop');
+    var scrollHeight = message.prop('scrollHeight');
+    var newMessageHeight = newMessage.innerHeight();
+    var lastMessageHeight = newMessage.prev().innerHeight();
+
+    //Si la suma de las alturas es mayor o igual al total de altura se hace el scroll
+    if(clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight){
+        message.scrollTop(scrollHeight);
+    }
+}
+
 //La siguiente funcion es un evento tipo connect, el cual se emite cuando el socket
 //se comunica con el server
 socket.on('connect', function() {
@@ -22,7 +48,7 @@ socket.on('newMessage', function(message) {
     })
     //Se agrega el template o el html al ol q se llama messages
     jQuery('#messages').append(html);
-
+    scrollToBottom();
     /** Esta forma es usando solo jQuery, sin mustache 
      * 
     var formatedTime = moment(message.createdAt).format("h:mm a");
