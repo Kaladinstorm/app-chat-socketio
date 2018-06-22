@@ -2,6 +2,7 @@ const path = require('path');
 const express = require('express');
 const http = require('http');
 const app = express();
+const generateMessage = require('./utils/message');
 //Este modulo permite hacer comunicacion con WebSocket
 const socketIO = require('socket.io');
 //Esta funcion permite generar un path integro, sin los "../", sino que muestra el resultado final
@@ -36,12 +37,12 @@ io.on('connection', (socket) => {
 
         //De esta forma se envia el mensaje como broadcast, le envia el mensaje a todos los sockets
         //Descomentar para probar
-        io.emit('newMessage', { msg: 'Paren el webeo oee pa todos los sockets!' });
+        io.emit('newMessage', generateMessage('juan', 'hola'));
 
         //De esta forma se envia el broadcast solo a este socket creado
         //El broadcast es enviado a todos los sockets menos al socket que emitio el mensaje o activo el evento
         //Descomentar para probar
-        //socket.broadcast.emit('newMessage', { msg: 'Paren el webeoo para los del socket!' })
+        socket.broadcast.emit('newMessage', generateMessage('msg', 'new user has joined'))
     });
 
     //Aca se crea el event emit, que ejecutara el listener creado en el lado del cliente
