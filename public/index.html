@@ -23,6 +23,20 @@
                 </div>
         </div>
 
+        <!-- Acá se hara un template para que lo use mustache -->
+        <script id="message-template" type="text/template">
+            <li class="message">
+                <div class="message__title"> 
+                    <!-- De esta forma se usan las variables pasadas al html-->
+                    <h4>{{from}}</h4>
+                    <span> {{createdAt}}</span>
+                </div>
+                <div class="message__body">
+                    {{text}}
+                </div>
+            </li>
+        </script>
+
 
        
         <!-- Este js viene en el modulo de socket.io, y se debe cargar para hacer la comunicacion -->
@@ -31,6 +45,7 @@
 
         <!-- Acá se importo el js moment desde el mismo modulo para ser usado en el archivo js frontend-->
         <script src="/js/libs/moment.js"></script>
+        <script src="/js/libs/mustache.js"></script>
         <script src="/js/index.js"></script>
     </body>
 </html>

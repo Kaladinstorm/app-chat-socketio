@@ -10,11 +10,28 @@ socket.on('connect', function() {
 
 socket.on('newMessage', function(message) {
 
+    //Se genera una fecha formateada con moment
+    var formatedTime = moment(message.createdAt).format("h:mm a");
+    //Se obtiene el html del bloque que contiene el template a usar
+    var template = jQuery('#message-template').html();
+    //Se genera el template pasando por argumentos los valores a usar
+    var html = Mustache.render(template, {
+        text: message.text,
+        from: message.from,
+        createdAt: formatedTime
+    })
+    //Se agrega el template o el html al ol q se llama messages
+    jQuery('#messages').append(html);
+
+    /** Esta forma es usando solo jQuery, sin mustache 
+     * 
     var formatedTime = moment(message.createdAt).format("h:mm a");
     var li = jQuery('<li></li>');
     li.text(`- ${message.from} ${formatedTime}: ${message.text}`);
     jQuery('#messages').append(li);
     console.log(message);
+
+    */    
 });
 
 //El siguiente evento se emite cuando se desconecta con el server
