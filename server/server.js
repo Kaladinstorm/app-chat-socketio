@@ -3,6 +3,8 @@ const express = require('express');
 const http = require('http');
 const app = express();
 const generateMessage = require('./utils/message').generateMessages;
+const isRealString = require('./utils/validation');
+const Users = require('./utils/users');
 //Este modulo permite hacer comunicacion con WebSocket
 const socketIO = require('socket.io');
 //Esta funcion permite generar un path integro, sin los "../", sino que muestra el resultado final
@@ -18,6 +20,7 @@ var server = http.createServer(app);
 //Aca se crea el WebSocket Server, con el cual se va a manipular todo
 //Hara la comunicacion entre el cliente y el server (backend y frontend)
 const io = socketIO(server);
+const users = new Users();
 
 //La siguiente funcion es un event listener, permite registrar eventos que seran emitidos si se cumple
 //el evento
@@ -25,12 +28,37 @@ const io = socketIO(server);
 io.on('connection', (socket) => {
     console.log('New user connected');
 
+    socket.on('join', function(params, callback) {
+
+        if(!isRealString(params.name) || !isRealString(params.room)) {
+            callback('Name and room are required.');
+        } else {
+
+            //Esta funcion setea el socket en una room, la cual para que las conexiones entren
+            //deben señalar que quieren entrar a esta room por medio del nombre 
+            socket.join(params.room);
+
+            //Se elimina el usuario si esta en otra room
+            users.removeUser(socket.id);
+            //Aca se agrega un nuevo usuario al arreglo
+            users.addUser(socket.id, params.name, params.room);
+
+            //Aca se actualiza la lista de usuarios para todos los sockets de cierta room
+            io.to(params.room).emit('updateUserList', users.getUserList(params.room));
+            //Aca se envia el mensaje de bienvenida
+            socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat!'));
+
+            // Aca se le envia el broadcast a la room especifica, y se le da el emit
+            socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', 'A '+ params.name +' has connected!') );
+            callback();
+        }
+    });
+
     socket.emit('welcome', { msg: 'Welcome to the chat'});
 
     socket.broadcast.emit('welcome', { msg: 'A new user has connected'} );
 
-    socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat!'));
-    socket.broadcast.emit('newMessage', generateMessage('Admin', 'A new user has connected!') );
+    
 
     //Listener que se eecutara cuando el cliente envie el emit
     socket.on('createMessage', function(message, callback) {
@@ -71,7 +99,12 @@ io.on('connection', (socket) => {
     //Aca se crean los eventos correspondientes al socket creado
     //Evento de desconexion con el cliente
     socket.on('disconnect', () => {
-        console.log('User was disconnected');
+        var user = users.removeUser(socket.id);
+
+        if(user) {
+            io.to(user.room).emit('updateUserList', users.getUserList(user.room));
+            io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left the room`));
+        }
     });
 
     

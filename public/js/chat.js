@@ -31,8 +31,18 @@ function scrollToBottom() {
 //La siguiente funcion es un evento tipo connect, el cual se emite cuando el socket
 //se comunica con el server
 socket.on('connect', function() {
-    console.log('Socket is connected with server');
-})
+    //Aca se obtienen los parametros del get
+    var params = jQuery.deparam(window.location.search);
+
+    socket.emit('join', params, function(err){
+        if(err) {
+            alert(err);
+            window.location.href = '/';
+        } else {
+            console.log('no error');
+        }
+    });
+});
 
 socket.on('newMessage', function(message) {
 
@@ -63,6 +73,17 @@ socket.on('newMessage', function(message) {
 //El siguiente evento se emite cuando se desconecta con el server
 socket.on('disconnect', function() {
     console.log('Disconnect from server');
+});
+
+socket.on('updateUserList', function(users) {
+
+    var ol = jQuery('<ol></ol>');
+
+    users.forEach(function(user) {
+        ol.append(jQuery('<li></li>').text(user));
+    });
+
+    jQuery('#users').html(ol);
 });
 
 socket.on('welcome', function(msg){
