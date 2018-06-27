@@ -46,6 +46,7 @@ socket.on('connect', function() {
 
 socket.on('newMessage', function(message) {
 
+    console.log(message);
     //Se genera una fecha formateada con moment
     var formatedTime = moment(message.createdAt).format("h:mm a");
     //Se obtiene el html del bloque que contiene el template a usar
@@ -115,7 +116,6 @@ jQuery('#message-form').on('submit', function(e) {
 
     var textBoxMesage = jQuery('[name=message]');
     socket.emit('createMessage', {
-        from: 'User',
         text: textBoxMesage.val()
     }, function(msg){
         textBoxMesage.val('');

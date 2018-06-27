@@ -62,13 +62,22 @@ io.on('connection', (socket) => {
 
     //Listener que se eecutara cuando el cliente envie el emit
     socket.on('createMessage', function(message, callback) {
-        console.log(message);
-
         
+
+        //Se busca el uusario con el id del socket
+        var user = users.getUser(socket.id);
+
+        if(user && isRealString(message.text)) {
 
         //De esta forma se envia el mensaje como broadcast, le envia el mensaje a todos los sockets
         //Descomentar para probar
-        io.emit('newMessage', generateMessage(message.from, message.text));
+        //El .to se especifcia a q room se enviara el mensage
+            io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+        }
+
+        
+
+        
 
 
         //De esta forma se envia el broadcast solo a este socket creado
